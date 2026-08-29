@@ -1,0 +1,49 @@
+body {
+  background-color: #24202a;
+}
+#pole {
+
+
+  float:left;
+  position: relative;
+  bottom: -40vh;
+
+  background-color: white;
+  border-radius: 5vh;
+  border: 0;
+  width: 40vw;
+  padding-left: 1vw;
+  height: 10vh;
+  padding-right: 10vw;
+  z-index: 0;
+}
+#sell {
+  float: left;
+  position: relative;
+  bottom: -43vh;
+  right: -45vw;
+  z-index: 1;
+}
+#logo {
+  float: left;
+  position: relative;
+  bottom: -24vh;
+  right: -35vw;
+  width: 20vw;
+}
+.sites {
+  text-decoration: none;
+}
+.sites:hover {
+  text-decoration: underline;
+}
+.pros {
+  text-decoration: none;
+  color: grey;
+  pointer-events: none;
+  display: inline-block;
+}
+.pros:hover {
+  text-decoration: none;
+
+}
