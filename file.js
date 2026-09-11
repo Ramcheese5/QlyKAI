@@ -9,7 +9,7 @@ function search(query) {
     return new Promise((resolve, reject) => {
 
         const socket = new WebSocket(
-            "ws://46.150.175.171:18765"
+            "wss://46.150.175.171:18765"
         );
 
         socket.onopen = function () {
@@ -188,7 +188,7 @@ function sendLink(a) {
     console.log("Подключаюсь к порту 12874...");
 
     const socket = new WebSocket(
-        "ws://46.150.175.171:12874"
+        "wss://46.150.175.171:12874"
     );
 
     socket.onopen = function () {
