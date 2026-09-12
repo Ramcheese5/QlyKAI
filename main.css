@@ -17,6 +17,9 @@ body {
   padding-right: 10vw;
   z-index: 0;
 }
+#pole:disabled {
+  background-color: #ffffff;
+}
 #sell {
   float: left;
   position: relative;
