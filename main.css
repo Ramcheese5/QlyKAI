@@ -18,7 +18,7 @@ body {
   z-index: 0;
 }
 #pole:disabled {
-  background-color: #ffffff;
+  background-color: white;
 }
 #sell {
   float: left;
