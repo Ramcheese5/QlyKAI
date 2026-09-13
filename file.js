@@ -22,7 +22,7 @@ function ect9by(tolerance = 0.05) {
 async function search(query) {
 
     const response = await fetch(
-        "https://46.150.175.171:18765/search",
+        "https://127.0.0.1:18765/search",
         {
             method: "POST",
 
@@ -300,7 +300,7 @@ async function sendLink(a) {
     try {
 
         const response = await fetch(
-            "https://46.150.175.171:12874/visit",
+            "https://127.0.0.1:12874/visit",
             {
                 method: "POST",
 
