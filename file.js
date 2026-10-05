@@ -8,11 +8,8 @@ var elements_prosm = [];
 
 const SERVER_URL = "https://qlykai-files.onrender.com";
 
-
 // ============================================================
 // ОПРЕДЕЛЕНИЕ ФОРМАТА ЭКРАНА
-// true  = ближе к 16:9
-// false = ближе к 9:16
 // ============================================================
 
 function isLandscape() {
@@ -24,12 +21,9 @@ function isLandscape() {
     return Math.abs(ratio - ratio169) < Math.abs(ratio - ratio916);
 }
 
-
-// Старое название функции, если оно используется в HTML/CSS
 function ect9by() {
     return !isLandscape();
 }
-
 
 // ============================================================
 // ПРОГРЕВ СЕРВЕРА RENDER
@@ -38,14 +32,11 @@ function ect9by() {
 let serverReady = false;
 let warmupPromise = null;
 
-
 function warmupServer() {
-    // Если сервер уже прогрет — второй раз ничего не делаем
     if (serverReady) {
         return Promise.resolve(true);
     }
 
-    // Если прогрев уже выполняется — используем тот же запрос
     if (warmupPromise) {
         return warmupPromise;
     }
@@ -67,9 +58,6 @@ function warmupServer() {
     })
     .catch(function(error) {
         console.log("Прогрев сервера:", error.message);
-
-        // Не считаем это критической ошибкой.
-        // Сам поиск всё равно сможет попробовать подключиться.
         return false;
     })
     .finally(function() {
@@ -79,15 +67,11 @@ function warmupServer() {
     return warmupPromise;
 }
 
-
-// Запускаем прогрев сразу после загрузки страницы
 window.addEventListener("load", function() {
-    // Небольшая задержка, чтобы не мешать первоначальной загрузке страницы
     setTimeout(function() {
         warmupServer();
     }, 300);
 });
-
 
 // ============================================================
 // ОЧИСТКА РЕЗУЛЬТАТОВ
@@ -131,7 +115,6 @@ function clearResults() {
     elements_prosm = [];
 }
 
-
 // ============================================================
 // ПОИСК
 // ============================================================
@@ -143,28 +126,6 @@ async function search(query) {
     if (!query) {
         return;
     }
-
-    /*
-        ВАЖНО:
-
-        Если Render спал, первый запрос к /search сам разбудит его.
-
-        Поэтому здесь мы НЕ делаем:
-
-            await warmupServer();
-
-        перед каждым поиском.
-
-        Иначе пользователь будет ждать:
-
-            /health -> пробуждение -> /search
-
-        вместо одного запроса.
-
-        Если прогрев уже идёт, поиск всё равно может выполняться
-        независимо от него.
-    */
-
 
     try {
 
@@ -183,13 +144,11 @@ async function search(query) {
             })
         });
 
-
         if (!response.ok) {
             throw new Error(
                 "Сервер вернул HTTP " + response.status
             );
         }
-
 
         const data = await response.json();
 
@@ -197,26 +156,17 @@ async function search(query) {
 
         poisk = data;
 
-
         showResults(data);
 
-
         serverReady = true;
-
 
     } catch (error) {
 
         console.error("Ошибка поиска:", error);
 
-        /*
-            Если запрос не прошёл из-за того, что Render спал,
-            пробуем прогреть его и повторить запрос один раз.
-        */
-
         try {
 
             await warmupServer();
-
 
             const retryResponse = await fetch(
                 SERVER_URL + "/search",
@@ -237,14 +187,12 @@ async function search(query) {
                 }
             );
 
-
             if (!retryResponse.ok) {
                 throw new Error(
                     "Повторный запрос: HTTP " +
                     retryResponse.status
                 );
             }
-
 
             const retryData = await retryResponse.json();
 
@@ -255,7 +203,6 @@ async function search(query) {
             showResults(retryData);
 
             serverReady = true;
-
 
         } catch (retryError) {
 
@@ -272,19 +219,11 @@ async function search(query) {
     }
 }
 
-
 // ============================================================
 // ВЫВОД РЕЗУЛЬТАТОВ
 // ============================================================
 
 function showResults(data) {
-
-    /*
-        Здесь используется существующая разметка QlyКАЙ.
-
-        Если в твоём HTML есть контейнер результатов,
-        он определяется автоматически.
-    */
 
     let container =
         document.getElementById("results") ||
@@ -298,16 +237,10 @@ function showResults(data) {
         return;
     }
 
-
-    /*
-        Максимум 200 результатов.
-    */
-
     const maxResults = Math.min(
         data.length,
         200
     );
-
 
     for (let i = 0; i < maxResults; i++) {
 
@@ -317,45 +250,31 @@ function showResults(data) {
             continue;
         }
 
-
         const title =
             item[0] !== undefined
                 ? String(item[0])
                 : "";
-
 
         const description =
             item[1] !== undefined
                 ? String(item[1])
                 : "";
 
-
         const url =
             item[2] !== undefined
                 ? String(item[2])
                 : "";
-
 
         const visits =
             item[3] !== undefined
                 ? item[3]
                 : 0;
 
-
-        // ----------------------------------------------------
-        // Блок сайта
-        // ----------------------------------------------------
-
         const site = document.createElement("div");
 
         site.className = "site";
 
         elements_sites.push(site);
-
-
-        // ----------------------------------------------------
-        // Ссылка / название
-        // ----------------------------------------------------
 
         const link = document.createElement("a");
 
@@ -369,7 +288,6 @@ function showResults(data) {
 
         link.className = "site_title";
 
-
         link.addEventListener(
             "click",
             function() {
@@ -377,13 +295,7 @@ function showResults(data) {
             }
         );
 
-
         elements_op.push(link);
-
-
-        // ----------------------------------------------------
-        // Описание
-        // ----------------------------------------------------
 
         const p = document.createElement("p");
 
@@ -392,11 +304,6 @@ function showResults(data) {
         p.className = "site_description";
 
         elements_p.push(p);
-
-
-        // ----------------------------------------------------
-        // URL
-        // ----------------------------------------------------
 
         const urlElement =
             document.createElement("div");
@@ -407,11 +314,6 @@ function showResults(data) {
 
         elements_op.push(urlElement);
 
-
-        // ----------------------------------------------------
-        // Просмотры
-        // ----------------------------------------------------
-
         const views =
             document.createElement("div");
 
@@ -421,11 +323,6 @@ function showResults(data) {
         views.className = "site_views";
 
         elements_prosm.push(views);
-
-
-        // ----------------------------------------------------
-        // Сборка
-        // ----------------------------------------------------
 
         site.appendChild(link);
 
@@ -439,7 +336,6 @@ function showResults(data) {
     }
 }
 
-
 // ============================================================
 // ОТСЛЕЖИВАНИЕ ПЕРЕХОДОВ
 // ============================================================
@@ -449,7 +345,6 @@ async function sendLink(url) {
     if (!url) {
         return;
     }
-
 
     try {
 
@@ -470,18 +365,12 @@ async function sendLink(url) {
 
     } catch (error) {
 
-        /*
-            Ошибка статистики посещения не должна
-            мешать пользователю открыть сайт.
-        */
-
         console.log(
             "Не удалось отправить посещение:",
             error
         );
     }
 }
-
 
 // ============================================================
 // ОБРАБОТКА ПОИСКА
@@ -496,19 +385,15 @@ async function handleSearch() {
         return;
     }
 
-
     const query =
         input.value.trim();
-
 
     if (!query) {
         return;
     }
 
-
     await search(query);
 }
-
 
 // ============================================================
 // КНОПКА ПОИСКА
@@ -524,7 +409,6 @@ document.addEventListener(
         const button =
             document.getElementById("sell");
 
-
         if (button) {
 
             button.addEventListener(
@@ -534,7 +418,6 @@ document.addEventListener(
                 }
             );
         }
-
 
         if (input) {
 
@@ -551,15 +434,6 @@ document.addEventListener(
             );
         }
 
-
-        /*
-            Дополнительный прогрев после создания DOM.
-
-            Он использует тот же Promise, поэтому
-            одновременно несколько /health запросов
-            не отправятся.
-        */
-
         setTimeout(
             function() {
                 warmupServer();
@@ -569,7 +443,6 @@ document.addEventListener(
     }
 );
 
-
 // ============================================================
 // ЕСЛИ РАЗМЕР ОКНА ИЗМЕНИЛСЯ
 // ============================================================
@@ -577,12 +450,6 @@ document.addEventListener(
 window.addEventListener(
     "resize",
     function() {
-
-        /*
-            Оставляем возможность существующему
-            интерфейсу реагировать на изменение
-            ориентации.
-        */
 
         const landscape =
             isLandscape();
@@ -600,7 +467,6 @@ window.addEventListener(
             );
     }
 );
-
 
 // Первоначальное определение формата
 document.addEventListener(
