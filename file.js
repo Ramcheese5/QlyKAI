@@ -536,15 +536,20 @@ document.addEventListener(
         }
 
 
-        if (input) {
-            input.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    handleSearch();
-                }
-            };
-        }
+        if (input) { 
 
+            input.addEventListener( 
+                "keydown", 
+                function(event) { 
+
+                    if ( 
+                        event.key === "Enter" 
+                    ) { 
+                        handleSearch(); 
+                    } 
+                } 
+            ); 
+        }
 
         /*
             Дополнительный прогрев после создания DOM.
