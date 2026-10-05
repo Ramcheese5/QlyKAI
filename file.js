@@ -1,6 +1,5 @@
 
 var poisk = [];
-
 var elements_sites = [];
 var elements_p = [];
 var elements_op = [];
@@ -10,179 +9,120 @@ var elements_prosm = [];
 const SERVER_URL = "https://qlykai-files.onrender.com";
 
 
-// ==========================================
-// ПРОГРЕВ RENDER
-// ==========================================
+// ============================================================
+// ОПРЕДЕЛЕНИЕ ФОРМАТА ЭКРАНА
+// true  = ближе к 16:9
+// false = ближе к 9:16
+// ============================================================
 
-async function warmupServer() {
+function isLandscape() {
+    const ratio = window.innerWidth / window.innerHeight;
 
-    console.log("Прогреваю Render...");
+    const ratio169 = 16 / 9;
+    const ratio916 = 9 / 16;
 
-    try {
+    return Math.abs(ratio - ratio169) < Math.abs(ratio - ratio916);
+}
 
-        const response = await fetch(
-            SERVER_URL + "/health",
-            {
-                method: "GET",
-                cache: "no-cache"
-            }
-        );
 
-        if (response.ok) {
+// Старое название функции, если оно используется в HTML/CSS
+function ect9by() {
+    return !isLandscape();
+}
 
-            console.log("Render готов:", response.status);
 
-        } else {
+// ============================================================
+// ПРОГРЕВ СЕРВЕРА RENDER
+// ============================================================
 
-            console.log(
-                "Render ответил:",
-                response.status
-            );
+let serverReady = false;
+let warmupPromise = null;
+
+
+function warmupServer() {
+    // Если сервер уже прогрет — второй раз ничего не делаем
+    if (serverReady) {
+        return Promise.resolve(true);
+    }
+
+    // Если прогрев уже выполняется — используем тот же запрос
+    if (warmupPromise) {
+        return warmupPromise;
+    }
+
+    warmupPromise = fetch(SERVER_URL + "/health", {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+            "Cache-Control": "no-cache"
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
         }
 
-    }
-    catch (error) {
+        serverReady = true;
+        return true;
+    })
+    .catch(function(error) {
+        console.log("Прогрев сервера:", error.message);
 
-        console.log(
-            "Ошибка прогрева Render:",
-            error
-        );
-    }
+        // Не считаем это критической ошибкой.
+        // Сам поиск всё равно сможет попробовать подключиться.
+        return false;
+    })
+    .finally(function() {
+        warmupPromise = null;
+    });
+
+    return warmupPromise;
 }
 
 
-// Запускаем прогрев сразу после загрузки JS
-warmupServer();
+// Запускаем прогрев сразу после загрузки страницы
+window.addEventListener("load", function() {
+    // Небольшая задержка, чтобы не мешать первоначальной загрузке страницы
+    setTimeout(function() {
+        warmupServer();
+    }, 300);
+});
 
 
-// ==========================================
-// ПРОВЕРКА СООТНОШЕНИЯ ЭКРАНА
-// ==========================================
-
-function ect9by(tolerance = 0.05) {
-
-    const targetRatio = 9 / 16;
-    const currentRatio =
-        window.innerWidth / window.innerHeight;
-
-    return Math.abs(
-        currentRatio - targetRatio
-    ) <= tolerance;
-}
-
-
-// ==========================================
-// ПОИСК
-// ==========================================
-
-async function search(query) {
-
-    console.log(
-        "Отправляю запрос на Render:",
-        query
-    );
-
-
-    const response = await fetch(
-        SERVER_URL + "/search",
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "application/json; charset=utf-8"
-            },
-
-            body: JSON.stringify({
-                query: query
-            })
-        }
-    );
-
-
-    if (!response.ok) {
-
-        const errorText =
-            await response.text();
-
-        throw new Error(
-            "Ошибка сервера: HTTP " +
-            response.status +
-            " " +
-            errorText
-        );
-    }
-
-
-    const result =
-        await response.json();
-
-
-    console.log(
-        "Получено от Render:",
-        result
-    );
-
-
-    return result;
-}
-
-
-// ==========================================
-// ЭЛЕМЕНТЫ СТРАНИЦЫ
-// ==========================================
-
-var sell = document.getElementById("sell");
-var input = document.getElementById("pole");
-var logo = document.getElementById("logo");
-var form = document.getElementById("my-form");
-
-
-// ==========================================
-// УДАЛЕНИЕ СТАРЫХ РЕЗУЛЬТАТОВ
-// ==========================================
+// ============================================================
+// ОЧИСТКА РЕЗУЛЬТАТОВ
+// ============================================================
 
 function clearResults() {
-
-    for (let i = 0;
-         i < elements_sites.length;
-         i++) {
-
-        elements_sites[i].remove();
+    for (let i = 0; i < elements_sites.length; i++) {
+        if (elements_sites[i] && elements_sites[i].remove) {
+            elements_sites[i].remove();
+        }
     }
 
-
-    for (let i = 0;
-         i < elements_p.length;
-         i++) {
-
-        elements_p[i].remove();
+    for (let i = 0; i < elements_p.length; i++) {
+        if (elements_p[i] && elements_p[i].remove) {
+            elements_p[i].remove();
+        }
     }
 
-
-    for (let i = 0;
-         i < elements_op.length;
-         i++) {
-
-        elements_op[i].remove();
+    for (let i = 0; i < elements_op.length; i++) {
+        if (elements_op[i] && elements_op[i].remove) {
+            elements_op[i].remove();
+        }
     }
 
-
-    for (let i = 0;
-         i < elements_img.length;
-         i++) {
-
-        elements_img[i].remove();
+    for (let i = 0; i < elements_img.length; i++) {
+        if (elements_img[i] && elements_img[i].remove) {
+            elements_img[i].remove();
+        }
     }
 
-
-    for (let i = 0;
-         i < elements_prosm.length;
-         i++) {
-
-        elements_prosm[i].remove();
+    for (let i = 0; i < elements_prosm.length; i++) {
+        if (elements_prosm[i] && elements_prosm[i].remove) {
+            elements_prosm[i].remove();
+        }
     }
-
 
     elements_sites = [];
     elements_p = [];
@@ -192,60 +132,373 @@ function clearResults() {
 }
 
 
-// ==========================================
-// ОБРАБОТКА ПОИСКА
-// ==========================================
+// ============================================================
+// ПОИСК
+// ============================================================
 
-async function handleSearch(event) {
+async function search(query) {
 
-    if (event) {
-        event.preventDefault();
+    query = String(query || "").trim();
+
+    if (!query) {
+        return;
+    }
+
+    /*
+        ВАЖНО:
+
+        Если Render спал, первый запрос к /search сам разбудит его.
+
+        Поэтому здесь мы НЕ делаем:
+
+            await warmupServer();
+
+        перед каждым поиском.
+
+        Иначе пользователь будет ждать:
+
+            /health -> пробуждение -> /search
+
+        вместо одного запроса.
+
+        Если прогрев уже идёт, поиск всё равно может выполняться
+        независимо от него.
+    */
+
+
+    try {
+
+        const response = await fetch(SERVER_URL + "/search", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "Cache-Control": "no-cache"
+            },
+
+            cache: "no-store",
+
+            body: JSON.stringify({
+                query: query
+            })
+        });
+
+
+        if (!response.ok) {
+            throw new Error(
+                "Сервер вернул HTTP " + response.status
+            );
+        }
+
+
+        const data = await response.json();
+
+        clearResults();
+
+        poisk = data;
+
+
+        showResults(data);
+
+
+        serverReady = true;
+
+
+    } catch (error) {
+
+        console.error("Ошибка поиска:", error);
+
+        /*
+            Если запрос не прошёл из-за того, что Render спал,
+            пробуем прогреть его и повторить запрос один раз.
+        */
+
+        try {
+
+            await warmupServer();
+
+
+            const retryResponse = await fetch(
+                SERVER_URL + "/search",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json; charset=utf-8",
+                        "Cache-Control": "no-cache"
+                    },
+
+                    cache: "no-store",
+
+                    body: JSON.stringify({
+                        query: query
+                    })
+                }
+            );
+
+
+            if (!retryResponse.ok) {
+                throw new Error(
+                    "Повторный запрос: HTTP " +
+                    retryResponse.status
+                );
+            }
+
+
+            const retryData = await retryResponse.json();
+
+            clearResults();
+
+            poisk = retryData;
+
+            showResults(retryData);
+
+            serverReady = true;
+
+
+        } catch (retryError) {
+
+            console.error(
+                "Повторный запрос тоже завершился ошибкой:",
+                retryError
+            );
+
+            alert(
+                "Не удалось выполнить поиск. " +
+                "Попробуйте ещё раз."
+            );
+        }
+    }
+}
+
+
+// ============================================================
+// ВЫВОД РЕЗУЛЬТАТОВ
+// ============================================================
+
+function showResults(data) {
+
+    /*
+        Здесь используется существующая разметка QlyКАЙ.
+
+        Если в твоём HTML есть контейнер результатов,
+        он определяется автоматически.
+    */
+
+    let container =
+        document.getElementById("results") ||
+        document.getElementById("rezultaty") ||
+        document.getElementById("result");
+
+    if (!container) {
+        console.error(
+            "Не найден контейнер результатов."
+        );
+        return;
     }
 
 
-    // ======================================
-    // ИЗМЕНЕНИЕ ПОЛЯ ПОИСКА
-    // ======================================
+    /*
+        Максимум 200 результатов.
+    */
 
-    input.style.right = "-2vw";
-    input.style.bottom = "-3vh";
-    input.style.width = "30vw";
-
-
-    if (ect9by()) {
-
-        input.style.height = "2.5vh";
-
-    } else {
-
-        input.style.height = "5vh";
-        logo.style.height = "6vh";
-    }
-
-
-    input.style.marginRight = "40vw";
-    input.style.paddingRight = "7vw";
-
-    logo.style.right = "-2vw";
-    logo.style.bottom = "-2vh";
-    logo.style.width = "10vw";
-
-    sell.style.right = "-38vw";
-    sell.style.bottom = "-4vh";
-
-
-    // ======================================
-    // ЗАПРОС
-    // ======================================
-
-    var query =
-        input.value.trim();
-
-
-    console.log(
-        "Запрос пользователя:",
-        query
+    const maxResults = Math.min(
+        data.length,
+        200
     );
+
+
+    for (let i = 0; i < maxResults; i++) {
+
+        const item = data[i];
+
+        if (!Array.isArray(item)) {
+            continue;
+        }
+
+
+        const title =
+            item[0] !== undefined
+                ? String(item[0])
+                : "";
+
+
+        const description =
+            item[1] !== undefined
+                ? String(item[1])
+                : "";
+
+
+        const url =
+            item[2] !== undefined
+                ? String(item[2])
+                : "";
+
+
+        const visits =
+            item[3] !== undefined
+                ? item[3]
+                : 0;
+
+
+        // ----------------------------------------------------
+        // Блок сайта
+        // ----------------------------------------------------
+
+        const site = document.createElement("div");
+
+        site.className = "site";
+
+        elements_sites.push(site);
+
+
+        // ----------------------------------------------------
+        // Ссылка / название
+        // ----------------------------------------------------
+
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.target = "_blank";
+
+        link.rel = "noopener noreferrer";
+
+        link.textContent = title || url;
+
+        link.className = "site_title";
+
+
+        link.addEventListener(
+            "click",
+            function() {
+                sendLink(url);
+            }
+        );
+
+
+        elements_op.push(link);
+
+
+        // ----------------------------------------------------
+        // Описание
+        // ----------------------------------------------------
+
+        const p = document.createElement("p");
+
+        p.textContent = description;
+
+        p.className = "site_description";
+
+        elements_p.push(p);
+
+
+        // ----------------------------------------------------
+        // URL
+        // ----------------------------------------------------
+
+        const urlElement =
+            document.createElement("div");
+
+        urlElement.textContent = url;
+
+        urlElement.className = "site_url";
+
+        elements_op.push(urlElement);
+
+
+        // ----------------------------------------------------
+        // Просмотры
+        // ----------------------------------------------------
+
+        const views =
+            document.createElement("div");
+
+        views.textContent =
+            "Посещений: " + visits;
+
+        views.className = "site_views";
+
+        elements_prosm.push(views);
+
+
+        // ----------------------------------------------------
+        // Сборка
+        // ----------------------------------------------------
+
+        site.appendChild(link);
+
+        site.appendChild(urlElement);
+
+        site.appendChild(p);
+
+        site.appendChild(views);
+
+        container.appendChild(site);
+    }
+}
+
+
+// ============================================================
+// ОТСЛЕЖИВАНИЕ ПЕРЕХОДОВ
+// ============================================================
+
+async function sendLink(url) {
+
+    if (!url) {
+        return;
+    }
+
+
+    try {
+
+        await fetch(SERVER_URL + "/visit", {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json; charset=utf-8"
+            },
+
+            body: JSON.stringify({
+                url: url
+            }),
+
+            keepalive: true
+        });
+
+    } catch (error) {
+
+        /*
+            Ошибка статистики посещения не должна
+            мешать пользователю открыть сайт.
+        */
+
+        console.log(
+            "Не удалось отправить посещение:",
+            error
+        );
+    }
+}
+
+
+// ============================================================
+// ОБРАБОТКА ПОИСКА
+// ============================================================
+
+async function handleSearch() {
+
+    const input =
+        document.getElementById("pole");
+
+    if (!input) {
+        return;
+    }
+
+
+    const query =
+        input.value.trim();
 
 
     if (!query) {
@@ -253,399 +506,120 @@ async function handleSearch(event) {
     }
 
 
-    clearResults();
-
-
-    try {
-
-        poisk =
-            await search(query);
-
-
-        console.log(
-            "Количество результатов:",
-            poisk.length
-        );
-
-
-        // ==================================
-        // СОЗДАЁМ ЭЛЕМЕНТЫ
-        // ==================================
-
-        for (let i = 0; i < 200; i++) {
-
-            // ------------------------------
-            // ЗАГОЛОВОК
-            // ------------------------------
-
-            let a =
-                document.createElement("a");
-
-            a.className = "sites";
-
-
-            a.onclick =
-                function(event) {
-
-                    event.preventDefault();
-
-                    sendLink(this);
-                };
-
-
-            document.body.appendChild(a);
-
-            elements_sites.push(a);
-
-
-            // ------------------------------
-            // URL
-            // ------------------------------
-
-            let p =
-                document.createElement("p");
-
-            p.className = "silka";
-
-            document.body.appendChild(p);
-
-            elements_p.push(p);
-
-
-            // ------------------------------
-            // ОПИСАНИЕ
-            // ------------------------------
-
-            let opis =
-                document.createElement("p");
-
-            opis.className = "opis";
-
-            document.body.appendChild(opis);
-
-            elements_op.push(opis);
-
-
-            // ------------------------------
-            // КАРТИНКА
-            // ------------------------------
-
-            let img =
-                document.createElement("img");
-
-            img.className =
-                "images_eye";
-
-            document.body.appendChild(img);
-
-            elements_img.push(img);
-
-
-            // ------------------------------
-            // ПРОСМОТРЫ
-            // ------------------------------
-
-            let prosm =
-                document.createElement("p");
-
-            prosm.className = "prosm";
-
-            document.body.appendChild(prosm);
-
-            elements_prosm.push(prosm);
-        }
-
-
-        // ==================================
-        // КОЛИЧЕСТВО РЕЗУЛЬТАТОВ
-        // ==================================
-
-        var len =
-            poisk.length;
-
-
-        if (len > 200) {
-            len = 200;
-        }
-
-
-        // ==================================
-        // ВЫВОД РЕЗУЛЬТАТОВ
-        //
-        // [title, description, url, visits]
-        // ==================================
-
-        for (var n = 0;
-             n < len;
-             n++) {
-
-
-            var title =
-                poisk[n][0] || "";
-
-
-            var description =
-                poisk[n][1] || "";
-
-
-            var url =
-                poisk[n][2] || "";
-
-
-            var visits =
-                poisk[n][3] || 0;
-
-
-            // ==================================
-            // ЗАГОЛОВОК
-            // ==================================
-
-            if (title.length > 60) {
-
-                elements_sites[n].innerHTML =
-                    title.slice(0, 60) +
-                    "..." +
-                    "<span class='pros'>" +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                    "👁️&nbsp;" +
-                    visits +
-                    "</span>" +
-                    "<br>";
-
-            } else {
-
-                elements_sites[n].innerHTML =
-                    title +
-                    "<span class='pros'>" +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                    "👁️&nbsp;" +
-                    visits +
-                    "</span>" +
-                    "<br>";
-            }
-
-
-            elements_sites[n].href =
-                url;
-
-
-            elements_sites[n].style.fontFamily =
-                "Arial";
-
-            elements_sites[n].style.fontSize =
-                "1.2vw";
-
-            elements_sites[n].style.color =
-                "#5b94f0";
-
-
-            elements_sites[n].style.marginLeft =
-                "5vw";
-
-
-            // ==================================
-            // ПЕРВЫЙ РЕЗУЛЬТАТ
-            // ==================================
-
-            if (n == 0) {
-
-                elements_sites[n].style.position =
-                    "relative";
-
-                elements_sites[n].style.bottom =
-                    "-7vh";
-
-
-                elements_p[n].style.position =
-                    "relative";
-
-                elements_p[n].style.bottom =
-                    "-7vh";
-
-
-                elements_op[n].style.position =
-                    "relative";
-
-                elements_op[n].style.bottom =
-                    "-7vh";
-            }
-
-
-            // ==================================
-            // URL
-            // ==================================
-
-            if (url.length > 100) {
-
-                elements_p[n].innerHTML =
-                    url.slice(0, 100) +
-                    "..." +
-                    "<br>";
-
-            } else {
-
-                elements_p[n].innerHTML =
-                    url +
-                    "<br>";
-            }
-
-
-            elements_p[n].style.fontFamily =
-                "Arial";
-
-            elements_p[n].style.fontSize =
-                "0.6vw";
-
-            elements_p[n].style.color =
-                "#25422d";
-
-            elements_p[n].style.marginLeft =
-                "5vw";
-
-
-            // ==================================
-            // ОПИСАНИЕ
-            // ==================================
-
-            if (description.length > 120) {
-
-                elements_op[n].innerHTML =
-                    description.slice(0, 120) +
-                    "..." +
-                    "<br>";
-
-            } else {
-
-                elements_op[n].innerHTML =
-                    description +
-                    "<br>";
-            }
-
-
-            elements_op[n].style.fontFamily =
-                "Arial";
-
-            elements_op[n].style.fontSize =
-                "0.9vw";
-
-            elements_op[n].style.color =
-                "grey";
-
-            elements_op[n].style.marginLeft =
-                "5vw";
-
-
-            // ==================================
-            // ОТСТУП
-            // ==================================
-
-            if (n == 0) {
-
-                elements_op[n].style.marginBottom =
-                    "7vw";
-
-            } else {
-
-                elements_op[n].style.marginBottom =
-                    "4vw";
-            }
-        }
-
-    }
-    catch (error) {
-
-        console.log(
-            "Ошибка поиска:",
-            error
-        );
-    }
+    await search(query);
 }
 
 
-// ==========================================
-// КНОПКА
-// ==========================================
+// ============================================================
+// КНОПКА ПОИСКА
+// ============================================================
 
-sell.onclick =
-    handleSearch;
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
+        const input =
+            document.getElementById("pole");
 
-// ==========================================
-// ФОРМА
-// ==========================================
-
-if (form) {
-
-    form.onsubmit =
-        handleSearch;
-}
+        const button =
+            document.getElementById("sell");
 
 
-// ==========================================
-// ОТПРАВКА ПОСЕЩЕНИЯ
-// ==========================================
+        if (button) {
 
-async function sendLink(a) {
-
-    const href =
-        a.href;
-
-
-    console.log(
-        "НАЖАТА ССЫЛКА:",
-        href
-    );
-
-
-    console.log(
-        "Отправляю посещение на Render..."
-    );
-
-
-    try {
-
-        const response =
-            await fetch(
-                SERVER_URL + "/visit",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        url: href
-                    }),
-
-                    keepalive: true
+            button.addEventListener(
+                "click",
+                function() {
+                    handleSearch();
                 }
             );
+        }
 
 
-        const result =
-            await response.json();
+        if (input) {
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+                        handleSearch();
+                    }
+                }
+            );
+        }
 
 
-        console.log(
-            "Ответ Render:",
-            result
+        /*
+            Дополнительный прогрев после создания DOM.
+
+            Он использует тот же Promise, поэтому
+            одновременно несколько /health запросов
+            не отправятся.
+        */
+
+        setTimeout(
+            function() {
+                warmupServer();
+            },
+            500
         );
-
     }
-    catch (error) {
+);
 
-        console.log(
-            "Ошибка отправки посещения:",
-            error
-        );
+
+// ============================================================
+// ЕСЛИ РАЗМЕР ОКНА ИЗМЕНИЛСЯ
+// ============================================================
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        /*
+            Оставляем возможность существующему
+            интерфейсу реагировать на изменение
+            ориентации.
+        */
+
+        const landscape =
+            isLandscape();
+
+        document.documentElement
+            .classList.toggle(
+                "landscape",
+                landscape
+            );
+
+        document.documentElement
+            .classList.toggle(
+                "portrait",
+                !landscape
+            );
     }
+);
 
 
-    // Открываем сайт
-    window.location.href =
-        href;
-}
+// Первоначальное определение формата
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
+        const landscape =
+            isLandscape();
 
+        document.documentElement
+            .classList.toggle(
+                "landscape",
+                landscape
+            );
+
+        document.documentElement
+            .classList.toggle(
+                "portrait",
+                !landscape
+            );
+    }
+);
