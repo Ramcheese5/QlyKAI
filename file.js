@@ -537,18 +537,12 @@ document.addEventListener(
 
 
         if (input) {
-
-            input.addEventListener(
-                "keydown",
-                function(event) {
-
-                    if (
-                        event.key === "Enter"
-                    ) {
-                        handleSearch();
-                    }
+    input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            handleSearch();
                 }
-            );
+            });
         }
 
 
