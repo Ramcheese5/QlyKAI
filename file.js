@@ -9,9 +9,11 @@ var elements_prosm = [];
 
 const SERVER_URL = "https://qlykai-files.onrender.com";
 function ect9by() {
+    
     return window.innerHeight > window.innerWidth;
+    
 }
-
+console.log(window.innerHeigh + "мама" window.innerWidth)
 
 // ==========================================
 // ПРОГРЕВ RENDER
