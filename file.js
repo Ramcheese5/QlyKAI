@@ -9,9 +9,7 @@ var elements_prosm = [];
 
 const SERVER_URL = "https://qlykai-files.onrender.com";
 function ect9by() {
-    const ratio = window.innerWidth / window.innerHeight;
-
-    return ratio < 1;
+    return window.innerHeight > window.innerWidth;
 }
 
 
