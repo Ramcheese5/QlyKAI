@@ -11,11 +11,7 @@ const SERVER_URL = "https://qlykai-files.onrender.com";
 function ect9by() {
     const ratio = window.innerWidth / window.innerHeight;
 
-    const verticalRatio = 9 / 16;
-    const horizontalRatio = 16 / 9;
-
-    return Math.abs(ratio - verticalRatio) <
-           Math.abs(ratio - horizontalRatio);
+    return ratio < 1;
 }
 
 
