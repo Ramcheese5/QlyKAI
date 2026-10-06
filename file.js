@@ -13,7 +13,7 @@ function ect9by() {
     return window.innerHeight > window.innerWidth;
     
 }
-console.log(window.innerHeigh + 67 window.innerWidth)
+console.log(window.innerHeigh + 67 + window.innerWidth)
 
 // ==========================================
 // ПРОГРЕВ RENDER
