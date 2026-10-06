@@ -8,6 +8,15 @@ var elements_img = [];
 var elements_prosm = [];
 
 const SERVER_URL = "https://qlykai-files.onrender.com";
+function ect9by() {
+    const ratio = window.innerWidth / window.innerHeight;
+
+    const verticalRatio = 9 / 16;
+    const horizontalRatio = 16 / 9;
+
+    return Math.abs(ratio - verticalRatio) <
+           Math.abs(ratio - horizontalRatio);
+}
 
 
 // ==========================================
@@ -55,20 +64,7 @@ async function warmupServer() {
 warmupServer();
 
 
-// ==========================================
-// ПРОВЕРКА СООТНОШЕНИЯ ЭКРАНА
-// ==========================================
 
-function ect9by(tolerance = 0.05) {
-
-    const targetRatio = 9 / 16;
-    const currentRatio =
-        window.innerWidth / window.innerHeight;
-
-    return Math.abs(
-        currentRatio - targetRatio
-    ) <= tolerance;
-}
 
 
 // ==========================================
@@ -209,21 +205,24 @@ async function handleSearch(event) {
 
     input.style.right = "-2vw";
     input.style.bottom = "-3vh";
-    input.style.width = "30vw";
+    
 
 
     if (ect9by()) {
 
         input.style.height = "2.5vh";
-
+        input.style.width = "70vw";
+        input.style.marginRight = "15vw";
     } else {
 
         input.style.height = "5vh";
         logo.style.height = "6vh";
+        input.style.width = "30vw";
+        input.style.marginRight = "40vw";
     }
 
 
-    input.style.marginRight = "40vw";
+    
     input.style.paddingRight = "7vw";
 
     logo.style.right = "-2vw";
