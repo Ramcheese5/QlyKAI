@@ -133,7 +133,11 @@ input.setAttribute("inputmode", "search");
 input.setAttribute("enterkeyhint", "search");
 
 input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
+    if (
+        event.key === "Enter" ||
+        event.key === "Go" ||
+        event.key === "Search"
+    ) {
         event.preventDefault();
         handleSearch(event);
     }
@@ -271,15 +275,31 @@ async function handleSearch(event) {
     
 
     var uniqueUrls = new Set();
+    var uniqueTitlesDescriptions = new Set();
 
     poisk = poisk.filter(function(result) {
+
+        var title = result[0] || "";
+        var description = result[1] || "";
         var url = result[2] || "";
 
+        // Проверяем полностью одинаковый URL
         if (uniqueUrls.has(url)) {
-        return false;
+            return false;
         }
 
+    // Проверяем полностью одинаковые название + описание
+        var titleDescription =
+            title + "|||" + description;
+
+        if (uniqueTitlesDescriptions.has(titleDescription)) {
+            return false;
+        }
+
+    // Запоминаем результат
         uniqueUrls.add(url);
+        uniqueTitlesDescriptions.add(titleDescription);
+
         return true;
     });
     
