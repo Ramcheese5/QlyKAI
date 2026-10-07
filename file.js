@@ -265,24 +265,24 @@ async function handleSearch(event) {
     clearResults();
 
 
-    try {
-
-        poisk = await search(query);
     
 
-        var uniqueUrls = new Set();
+    poisk = await search(query);
+    
 
-        poisk = poisk.filter(function(result) {
-            var url = result[2] || "";
+    var uniqueUrls = new Set();
 
-            if (uniqueUrls.has(url)) {
-            return false;
-            }
+    poisk = poisk.filter(function(result) {
+        var url = result[2] || "";
 
-            uniqueUrls.add(url);
-            return true;
-        });
-    }
+        if (uniqueUrls.has(url)) {
+        return false;
+        }
+
+        uniqueUrls.add(url);
+        return true;
+    });
+    
 
 
 
