@@ -267,14 +267,23 @@ async function handleSearch(event) {
 
     try {
 
-        poisk =
-            await search(query);
+        poisk = await search(query);
+    
 
+        var uniqueUrls = new Set();
 
-        console.log(
-            "Количество результатов:",
-            poisk.length
-        );
+        poisk = poisk.filter(function(result) {
+            var url = result[2] || "";
+
+            if (uniqueUrls.has(url)) {
+            return false;
+            }
+
+            uniqueUrls.add(url);
+            return true;
+        });
+    }
+
 
 
         // ==================================
