@@ -17,9 +17,6 @@ body {
   padding-right: 10vw;
   z-index: 0;
 }
-#pole:disabled {
-  background-color: white;
-}
 #sell {
   float: left;
   position: relative;
@@ -49,4 +46,9 @@ body {
 .pros:hover {
   text-decoration: none;
 
+}
+@media (max-width: 600px) {
+  #pole {
+    height: 6vh;
+  }
 }
