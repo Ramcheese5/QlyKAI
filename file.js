@@ -9,11 +9,13 @@ var elements_prosm = [];
 
 const SERVER_URL = "https://qlykai-files.onrender.com";
 function ect9by() {
-    
+
     return window.innerHeight > window.innerWidth;
-    
+
 }
-console.log(window.innerHeight + 67 + window.innerWidth)
+if(ect9by()) {
+  sell.remove();
+}
 
 // ==========================================
 // ПРОГРЕВ RENDER
@@ -127,7 +129,15 @@ async function search(query) {
 var sell = document.getElementById("sell");
 var input = document.getElementById("pole");
 var logo = document.getElementById("logo");
-var form = document.getElementById("my-form");
+input.setAttribute("inputmode", "search");
+input.setAttribute("enterkeyhint", "search");
+
+input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        handleSearch(event);
+    }
+});
 
 
 // ==========================================
@@ -198,35 +208,39 @@ async function handleSearch(event) {
     // ======================================
     // ИЗМЕНЕНИЕ ПОЛЯ ПОИСКА
     // ======================================
+    if(ect9by()) {
+      logo.remove();
 
+      input.style.width = "70vw";
+      input.style.marginRight = "20vw";
+    } else {
+      logo.style.height = "6vh";
+      logo.style.right = "-2vw";
+      logo.style.bottom = "-2vh";
+      logo.style.width = "10vw";
+
+      sell.style.right = "-38vw";
+      sell.style.bottom = "-4vh";
+      input.style.width = "30vw";
+      input.style.marginRight = "40vw";
+    }
     input.style.right = "-2vw";
     input.style.bottom = "-3vh";
-    
 
 
-    if (ect9by()) {
-
-        input.style.height = "2.5vh";
-        input.style.width = "70vw";
-        input.style.marginRight = "15vw";
-    } else {
-
-        input.style.height = "5vh";
-        logo.style.height = "6vh";
-        input.style.width = "30vw";
-        input.style.marginRight = "40vw";
-    }
 
 
-    
+
+    input.style.height = "5vh";
+
+
+
+
+
+
+
     input.style.paddingRight = "7vw";
 
-    logo.style.right = "-2vw";
-    logo.style.bottom = "-2vh";
-    logo.style.width = "10vw";
-
-    sell.style.right = "-38vw";
-    sell.style.bottom = "-4vh";
 
 
     // ======================================
@@ -426,10 +440,12 @@ async function handleSearch(event) {
 
             elements_sites[n].style.fontFamily =
                 "Arial";
+            if(ect9by()) {
+              elements_sites[n].style.fontSize = "1.8vw";
+            } else {
+                elements_sites[n].style.fontSize = "1.2vw";
 
-            elements_sites[n].style.fontSize =
-                "1.2vw";
-
+            }
             elements_sites[n].style.color =
                 "#5b94f0";
 
@@ -447,8 +463,9 @@ async function handleSearch(event) {
                 elements_sites[n].style.position =
                     "relative";
 
-                elements_sites[n].style.bottom =
-                    "-7vh";
+
+                elements_sites[n].style.bottom = "-7vh";
+
 
 
                 elements_p[n].style.position =
@@ -472,14 +489,14 @@ async function handleSearch(event) {
 
             if (url.length > 100) {
 
-                elements_p[n].innerHTML =
+              elements_p[n].innerHTML =
                     url.slice(0, 100) +
                     "..." +
                     "<br>";
 
             } else {
 
-                elements_p[n].innerHTML =
+              elements_p[n].innerHTML =
                     url +
                     "<br>";
             }
@@ -487,9 +504,12 @@ async function handleSearch(event) {
 
             elements_p[n].style.fontFamily =
                 "Arial";
+            if(ect9by()) {
+              elements_p[n].style.fontSize = "1vw";
+            } else {
+              elements_p[n].style.fontSize = "0.6vw";
 
-            elements_p[n].style.fontSize =
-                "0.6vw";
+            }
 
             elements_p[n].style.color =
                 "#25422d";
@@ -519,9 +539,11 @@ async function handleSearch(event) {
 
             elements_op[n].style.fontFamily =
                 "Arial";
-
-            elements_op[n].style.fontSize =
-                "0.9vw";
+            if(ect9by()) {
+              elements_op[n].style.fontSize = "1.5vw";
+            } else {
+              elements_op[n].style.fontSize = "0.9vw";
+            }
 
             elements_op[n].style.color =
                 "grey";
@@ -642,4 +664,3 @@ async function sendLink(a) {
     window.location.href =
         href;
 }
-
