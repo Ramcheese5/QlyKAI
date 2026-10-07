@@ -51,4 +51,7 @@ body {
   #pole {
     height: 6vh;
   }
+  #sell {
+    display: none;
+  }
 }
