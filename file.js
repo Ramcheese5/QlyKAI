@@ -578,14 +578,7 @@ async function handleSearch(event) {
         }
 
     }
-    catch (error) {
 
-        console.log(
-            "Ошибка поиска:",
-            error
-        );
-    }
-}
 
 
 // ==========================================
