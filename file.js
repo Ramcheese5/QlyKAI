@@ -142,6 +142,10 @@ input.addEventListener("keydown", function(event) {
         handleSearch(event);
     }
 });
+input.addEventListener("search", function(event) {
+    event.preventDefault();
+    handleSearch(event);
+});
 
 
 // ==========================================
