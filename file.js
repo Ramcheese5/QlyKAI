@@ -13,8 +13,13 @@ function ect9by() {
     return window.innerHeight > window.innerWidth;
 
 }
+var sell = document.getElementById("sell");
+var input = document.getElementById("pole");
+var logo = document.getElementById("logo");
 if(ect9by()) {
   sell.remove();
+  input.type = "search";
+
 }
 
 // ==========================================
@@ -126,9 +131,7 @@ async function search(query) {
 // ЭЛЕМЕНТЫ СТРАНИЦЫ
 // ==========================================
 
-var sell = document.getElementById("sell");
-var input = document.getElementById("pole");
-var logo = document.getElementById("logo");
+
 input.setAttribute("inputmode", "search");
 input.setAttribute("enterkeyhint", "search");
 
