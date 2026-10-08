@@ -50,6 +50,7 @@ body {
 @media (orientation: portrait) {
   #pole {
     height: 6vh;
+    width: 50vw;
   }
   #sell {
     display: none;
