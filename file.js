@@ -593,9 +593,12 @@ async function handleSearch(event) {
             // ==================================
 
             if (n == 0) {
-
-                elements_op[n].style.marginBottom =
-                    "7vw";
+                if(ect9by()) {
+                    elements_op[n].style.marginBottom = "10vw";
+                } else {
+                    elements_op[n].style.marginBottom = "7vw";
+                }
+                        
 
             } else {
 
