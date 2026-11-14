@@ -27,47 +27,48 @@ if(ect9by()) {
 // ПРОГРЕВ RENDER
 // ==========================================
 
-async function warmupServer() {
+const WARMUP_INTERVAL = 13 * 60 * 1000;
+let userStartedTyping = Boolean(input.value.trim());
+let warmupTimer = null;
 
-    console.log("Прогреваю Render...");
+function warmupServer() {
+    if (userStartedTyping || input.value.trim()) {
+        return;
+    }
 
-    try {
-
-        const response = await fetch(
-            SERVER_URL + "/health",
-            {
-                method: "GET",
-                cache: "no-cache"
-            }
-        );
-
-        if (response.ok) {
-
-            console.log("Render готов:", response.status);
-
-        } else {
-
-            console.log(
-                "Render ответил:",
-                response.status
-            );
+    fetch(
+        SERVER_URL + "/search",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({
+                query: "привет"
+            })
         }
-
-    }
-    catch (error) {
-
-        console.log(
-            "Ошибка прогрева Render:",
-            error
-        );
-    }
+    ).catch(function() {
+        // Ошибки фонового прогрева не показываем.
+    });
 }
 
+input.addEventListener("input", function() {
+    if (!userStartedTyping && input.value.trim()) {
+        userStartedTyping = true;
 
-// Запускаем прогрев сразу после загрузки JS
+        if (warmupTimer !== null) {
+            clearInterval(warmupTimer);
+            warmupTimer = null;
+        }
+    }
+});
+
 warmupServer();
 
-
+warmupTimer = setInterval(
+    warmupServer,
+    WARMUP_INTERVAL
+);
 
 
 
