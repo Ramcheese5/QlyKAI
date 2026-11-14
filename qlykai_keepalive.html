@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QlyKAI — Render Keep Alive</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #24202a;
+      color: #f4f0f7;
+      font-family: Arial, sans-serif;
+    }
+    main {
+      width: min(100%, 520px);
+      padding: 30px;
+      border: 1px solid #51485c;
+      border-radius: 18px;
+      background: #302a38;
+    }
+    h1 { margin-top: 0; font-size: 27px; }
+    .muted { color: #bdb4c7; line-height: 1.5; }
+    .status {
+      margin: 22px 0 12px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #24202a;
+      overflow-wrap: anywhere;
+    }
+    #state { font-weight: bold; }
+    #log {
+      min-height: 90px;
+      max-height: 220px;
+      overflow: auto;
+      white-space: pre-wrap;
+      color: #d7cfe0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    button {
+      margin-top: 14px;
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 8px;
+      background: #8b70bd;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>QlyKAI Keep Alive</h1>
+    <p class="muted">
+      Страница проверяет сервер QlyKAI сразу после открытия,
+      а затем каждые 13 минут.
+      Оставь эту вкладку открытой.
+    </p>
+
+    <div class="status">
+      <div>Состояние: <span id="state">Запуск...</span></div>
+      <p id="last">Последняя проверка: ещё не выполнялась</p>
+      <p id="next">Следующая проверка: —</p>
+    </div>
+
+    <div id="log">Запуск программы...</div>
+    <button id="check">Проверить сейчас</button>
+  </main>
+
+  <script>
+    const SERVER_URL = "https://qlykai-files.onrender.com";
+    const INTERVAL = 13 * 60 * 1000;
+
+    const state = document.getElementById("state");
+    const last = document.getElementById("last");
+    const next = document.getElementById("next");
+    const log = document.getElementById("log");
+    const checkButton = document.getElementById("check");
+
+    let nextCheckAt = null;
+    let timer = null;
+    let checking = false;
+
+    function clock() {
+      return new Date().toLocaleTimeString("ru-RU");
+    }
+
+    function writeLog(message) {
+      log.textContent =
+        `[${clock()}] ${message}\n` + log.textContent;
+    }
+
+    async function checkServer() {
+      if (checking) return;
+      checking = true;
+      state.textContent = "Отправляю запрос...";
+
+      try {
+        const response = await fetch(
+          SERVER_URL + "/health",
+          {
+            method: "GET",
+            cache: "no-cache"
+          }
+        );
+
+        last.textContent =
+          "Последняя проверка: " + clock() +
+          " — HTTP " + response.status;
+
+        if (response.ok) {
+          state.textContent = "Сервер ответил";
+          writeLog("Render ответил: HTTP " + response.status);
+        } else {
+          state.textContent = "HTTP " + response.status;
+          writeLog("Render вернул HTTP " + response.status);
+        }
+      } catch (error) {
+        state.textContent = "Ошибка соединения";
+        last.textContent =
+          "Последняя попытка: " + clock() + " — ошибка";
+        writeLog("Ошибка: " + error.message);
+      } finally {
+        checking = false;
+        nextCheckAt = Date.now() + INTERVAL;
+        updateNext();
+      }
+    }
+
+    function updateNext() {
+      if (!nextCheckAt) return;
+      const seconds = Math.max(
+        0, Math.ceil((nextCheckAt - Date.now()) / 1000)
+      );
+      const minutes = Math.floor(seconds / 60);
+      const remainder = seconds % 60;
+      next.textContent =
+        `Следующая проверка через: ${minutes} мин. ${remainder} сек.`;
+    }
+
+    checkButton.addEventListener("click", checkServer);
+
+    // Первая проверка сразу при открытии страницы.
+    checkServer();
+
+    // Далее — каждые 13 минут.
+    timer = setInterval(checkServer, INTERVAL);
+
+    // Обновляем отображение обратного отсчёта.
+    setInterval(updateNext, 1000);
+  </script>
+</body>
+</html>
