@@ -28,50 +28,82 @@ if(ect9by()) {
 // ==========================================
 
 const WARMUP_INTERVAL = 13 * 60 * 1000;
+
 let userStartedTyping = Boolean(input.value.trim());
 let warmupTimer = null;
 
 function warmupServer() {
+
+    // Если пользователь начал вводить запрос,
+    // прогрев прекращается.
+
     if (userStartedTyping || input.value.trim()) {
         return;
     }
 
-    fetch(
-        SERVER_URL + "/search",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8"
-            },
-            body: JSON.stringify({
-                query: "привет"
-            })
+    console.log("Отправляю фоновый запрос для Render");
+
+    fetch(SERVER_URL + "/search", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json; charset=utf-8"
+        },
+
+        body: JSON.stringify({
+            query: "привет"
+        }),
+
+        cache: "no-store",
+        keepalive: true
+
+    }).then(function(response) {
+
+        // Ответ не обрабатываем.
+        // Результаты поиска нигде не отображаются.
+
+        if (response.body) {
+            response.body.cancel();
         }
-    ).catch(function() {
-        // Ошибки фонового прогрева не показываем.
+
+    }).catch(function() {
+
+        // Ошибки фонового запроса игнорируем.
+
     });
 }
 
+
+// Первый запрос сразу после открытия страницы
+warmupServer();
+
+
+// Повтор каждые 13 минут
+warmupTimer = setInterval(function() {
+
+    warmupServer();
+
+}, WARMUP_INTERVAL);
+
+
+// Следим за вводом пользователя
 input.addEventListener("input", function() {
-    if (!userStartedTyping && input.value.trim()) {
+
+    if (input.value.trim() && !userStartedTyping) {
+
         userStartedTyping = true;
 
         if (warmupTimer !== null) {
+
             clearInterval(warmupTimer);
             warmupTimer = null;
+
         }
+
     }
+
 });
-
-warmupServer();
-
-warmupTimer = setInterval(
-    warmupServer,
-    WARMUP_INTERVAL
-);
-
-
-
 // ==========================================
 // ПОИСК
 // ==========================================
